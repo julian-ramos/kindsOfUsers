@@ -161,7 +161,7 @@ plt.title('Sum of all the correlations for all features \n Should give an idea o
 
 
 plt.figure()
-inds=np.where(correlations>=0.7)
+inds=np.where(correlations>=0.9)
 correlations[inds]=0
 plt.imshow(correlations,vmin=0,vmax=1)
 plt.colorbar()
