@@ -43,6 +43,26 @@ plt.figure()
 plt.scatter(tsneData[:,0],tsneData[:,1])
 
 
+def calcProbs(feature):
+    bins = np.linspace(np.min(feature), np.max(feature), 10)
+    digitized = np.digitize(feature, bins)
+    temp,probs=np.unique(digitized,return_counts=True)
+    probs=probs/(1.0*np.sum(probs))
+    #Now compute the probability distribution
+    pDist={}
+    for i in range(len(temp)):
+        pDist[temp[i]]=probs[i]
+    featureProbs=[]    
+    for i in range(len(feature)):
+        featureProbs.append(pDist[digitized[i]])
+    return probs
+
+def pdf(data):
+    allProbs=[]
+    for i in range(data.shape[1]):
+        allProbs.append(probs)
+    return allProbs
+
 #Entropy calculation to find interesting subspaces to look at
 
 def featureEntropy(feature):
@@ -52,13 +72,25 @@ def featureEntropy(feature):
     probs=probs/(1.0*np.sum(probs))
     
     entropy=entropyFromProbs(probs)
-    return entropy
+    
+    #Now compute the probability distribution
+    pDist={}
+    for i in range(len(temp)):
+        pDist[temp[i]]=probs[i]
+    featureProbs=[]    
+    for i in range(len(feature)):
+        featureProbs.append(pDist[digitized[i]])
+    
+    return entropy,featureProbs
 
 def entropyFeats(data):
     entropies=[]
+    allProbs=[]
     for i in range(data.shape[1]):
-        entropies.append(featureEntropy(data[:,i]))
-    return entropies
+        entropy,probs=featureEntropy(data[:,i])
+        entropies.append(entropy)
+        allProbs.append(probs)
+    return entropies,allProbs
 
 def corr(data,labels,**kwargs):
     data=np.transpose(data)
@@ -119,10 +151,30 @@ def corr(data,labels,**kwargs):
             return feats
 
         
-entropies=np.array(entropyFeats(tData))
+entropies,probs=entropyFeats(tData)
+entropies=np.array(entropies)
 plt.figure()
 plt.plot(entropies)
 plt.title("Entropy for each feature")
+
+probs=pdf(tData)
+
+pthold=0.1
+plt.figure()
+ax1=plt.subplot(2,1,1)
+plt.pcolormesh(probs)
+plt.title("Probabilities for each data point")
+plt.grid(b=True, which='major', color='w', linestyle='-')
+plt.grid(b=True, which='minor', color='w', linestyle='-')
+plt.colorbar()
+
+plt.subplot(2,1,2,sharex=ax1)
+plt.pcolormesh(probs<=pthold)
+plt.grid(b=True, which='major', color='w', linestyle='-')
+plt.grid(b=True, which='minor', color='w', linestyle='-')
+plt.colorbar()
+plt.title("Probabilities for each data point > %.1f"%(pthold))
+
 
 
 #Now visualize only the features for which the entropy is greather than 0.8
