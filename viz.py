@@ -55,12 +55,12 @@ def calcProbs(feature):
     featureProbs=[]    
     for i in range(len(feature)):
         featureProbs.append(pDist[digitized[i]])
-    return probs
+    return featureProbs
 
 def pdf(data):
     allProbs=[]
     for i in range(data.shape[1]):
-        allProbs.append(probs)
+        allProbs.append(calcProbs(data[:,i]))
     return allProbs
 
 #Entropy calculation to find interesting subspaces to look at
@@ -158,7 +158,7 @@ plt.plot(entropies)
 plt.title("Entropy for each feature")
 
 probs=pdf(tData)
-
+probs=np.array(probs)
 pthold=0.1
 plt.figure()
 ax1=plt.subplot(2,1,1)
@@ -175,7 +175,10 @@ plt.grid(b=True, which='minor', color='w', linestyle='-')
 plt.colorbar()
 plt.title("Probabilities for each data point > %.1f"%(pthold))
 
-
+probsCount=np.sum(probs<=pthold,1)
+plt.figure()
+plt.plot(probsCount)
+plt.title("Counts for number of data points per feature with p<0.1")
 
 #Now visualize only the features for which the entropy is greather than 0.8
 entropyThold=0.8
