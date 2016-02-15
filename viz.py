@@ -25,8 +25,10 @@ plt.figure()
 plt.subplot(2,1,1)
 plt.imshow(data,vmin=0,vmax=1)
 plt.title("original centroids")
+plt.colorbar()
 plt.subplot(2,1,2)
 plt.imshow(tData,vmin=0,vmax=1)
+plt.colorbar()
 plt.title("tf-idf")
 
 
@@ -65,13 +67,15 @@ def pdf(data):
 
 #Entropy calculation to find interesting subspaces to look at
 
-def featureEntropy(feature):
-    bins = np.linspace(np.min(feature), np.max(feature), 5)
+def featureEntropy(feature,binN=5):
+    bins = np.linspace(np.min(feature), np.max(feature), binN)
     digitized = np.digitize(feature, bins)
     temp,probs=np.unique(digitized,return_counts=True)
     probs=probs/(1.0*np.sum(probs))
+    print(np.log2(binN),np.ceil(np.log2(binN)))
+    entropy=entropyFromProbs(probs,base=len(probs))
     
-    entropy=entropyFromProbs(probs)
+#     entropy=log2(entropy)/log2()
     
     #Now compute the probability distribution
     pDist={}
@@ -158,7 +162,7 @@ plt.plot(entropies)
 plt.title("Entropy for each feature")
 
 probs=pdf(tData)
-probs=np.array(probs)
+probs=np.array(probs).T
 pthold=0.1
 plt.figure()
 ax1=plt.subplot(2,1,1)
@@ -181,7 +185,7 @@ plt.plot(probsCount)
 plt.title("Counts for number of data points per feature with p<0.1")
 
 #Now visualize only the features for which the entropy is greather than 0.8
-entropyThold=0.8
+entropyThold=0.7
 inds=np.argwhere(entropies>=entropyThold)
 inds=inds.T[0].tolist()
 #Entropy filtered data
